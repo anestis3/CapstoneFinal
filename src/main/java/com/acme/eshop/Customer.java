@@ -1,5 +1,7 @@
 package com.acme.eshop;
 
+import com.acme.eshop.database.DBConnection;
+import com.acme.eshop.database.DBServer;
 import com.thedeanda.lorem.Lorem;
 import com.thedeanda.lorem.LoremIpsum;
 import org.slf4j.Logger;
@@ -66,8 +68,8 @@ public class Customer {
                 }
 
                 preparedStatement.addBatch();
-            } catch (SQLException throwables) {
-                logger.error("Unable to generate data for customer " + throwables);
+            } catch (SQLException ex) {
+                logger.error("Unable to generate data for customer " + ex);
             }
         }
     }
@@ -89,25 +91,6 @@ public class Customer {
         } catch (SQLException throwables) {
             logger.error("unable to perform selection for customer"+throwables);
         }
-    }
-
-    public String selectSingeCustomer(Integer cust_id) {
-
-        String category = null;
-        String sql = "SELECT CATEGORY FROM CUSTOMER WHERE CUSTOMER_ID = ? " ;
-
-        try(PreparedStatement statement = DBConnection.getDBConnection().prepareStatement(sql)){
-            statement.setInt(1,cust_id);
-
-            ResultSet resultSet = statement.executeQuery();
-            if(resultSet.next()){
-                category = resultSet.getString("CATEGORY");}
-            return category;
-        } catch (SQLException throwable) {
-            logger.error("Error occurred while retrieving data from customer", throwable);
-        }
-        return category;
-
     }
 
 }

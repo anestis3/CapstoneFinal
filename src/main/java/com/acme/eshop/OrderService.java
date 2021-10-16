@@ -1,68 +1,93 @@
 package com.acme.eshop;
 
+import com.acme.eshop.app.Main;
+import com.acme.eshop.database.DBConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import static com.acme.eshop.Eshop.customer;
-import static com.acme.eshop.Eshop.product;
-import static com.acme.eshop.Eshop.orderItem;
+
+import static com.acme.eshop.app.Main.customerService;
+import static com.acme.eshop.app.Main.product;
+import static com.acme.eshop.app.Main.orderItem;
 
 public class OrderService {
 
-    private static final Logger logger = LoggerFactory.getLogger(Eshop.class);
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
     private final Order order = new Order();
     public OrderService(){
 
-}    public Integer placeOrder(Integer pro_id, int qnty, Integer cust_id, String method){
+}    public Integer makeOrder(Integer product_id, int quantity, Integer cust_id, String method){
 
         Integer orderId = order.selectSingleOrder(cust_id);
         Integer neworderId = 0;
 
-        logger.debug("order id: ", String.valueOf(order.selectSingleOrder(cust_id)), String.valueOf(orderId));
- //   System.out.println("order id: "+ String.valueOf(order.selectSingleOrder(cust_id))+ String.valueOf(orderId));
-
-   if (orderId == 0) {
-        if (product.selectProductQnty(pro_id) < qnty) {
-            logger.info("The product is out of stock");
-            logger.debug(String.valueOf(product.selectProductQnty(pro_id)));
-        }
-            else{
-                String category = customer.selectSingeCustomer(cust_id);
-                Double amount = product.selectProductPrice(pro_id);
-                Double price = calculatePrice(method, amount, qnty, category);
+        if (orderId == 0) {
+            if (product.selectProductAvailability(product_id) < quantity) {
+                logger.info("The product is out of stock");
+                logger.debug(String.valueOf(product.selectProductAvailability(product_id)));
+               }
+            else {
+                String category = customerService.selectCustomerCategory(cust_id);
+                Double amount = product.selectProductPrice(product_id);
+                Double price = calculatePrice(method, amount, quantity, category);
                 neworderId = order.insertOrder(orderId, cust_id, method, price);
-
-              orderItem.insertOrderItem(neworderId, pro_id, qnty);
+                orderItem.insertOrderItem(neworderId, product_id, quantity);
+                 }
         }
-    }
-    else{
-        logger.info("the customer has an order pending");
-    }
-    return neworderId;
-}
+        else{
+             logger.info("!!!the order id" + orderId + " is pending for customer " + cust_id);
+             logger.info("!!!no new orders can be placed until it is completed");
+             }
+         return neworderId;
+        }
 
     private Double calculatePrice(String method, Double amount, Integer quantity, String custCategory) {
 
-        Double total_amount = 0.00;
-        if (method=="CASH") {
-            total_amount = (amount * quantity) - (amount*quantity)*0.1;
+        double initialAmount;
+        double finalAmount;
+        double discount1 = 0.00;
+        double discount2 = 0.00;
+        double totalDiscount;
+        double discountPercentage;
 
+        switch (method) {
+            case "card":
+                discount1 = 0.15;
+                break;
+            case "wire":
+                discount1 = 0.10;
+                break;
+            case "cash":
+                discount1 = 0.00;
+                break;
+        }
+
+        switch (custCategory) {
+            case "B2C":
+                discount2 = 0.00;
+                break;
+            case "B2B":
+                discount2 = 0.2;
+                break;
+            case "B2G":
+                discount2 = 0.5;
+                break;
+        }
+
+        initialAmount = (amount * quantity);
+        totalDiscount = discount1 + discount2 ;
+        discountPercentage = totalDiscount*100;
+        finalAmount = (initialAmount) - (initialAmount*totalDiscount);
+        logger.info("Initial cost is " + initialAmount);
+        if (totalDiscount == 0.00){
+            logger.info("There is no discount for this payment method and customer category");
         }
         else {
-            total_amount = (amount * quantity) - (amount*quantity)*0.15;
-
+            logger.info("You are entitled to " + discountPercentage + "% discount, so the final cost is "+ finalAmount);
         }
-        if (custCategory=="B2B") {
-            total_amount = total_amount - (total_amount)*0.2;
-
-        }
-        else if (custCategory == "B2G"){
-            total_amount = total_amount - total_amount*0.5;
-
-        }
-        return total_amount;
+        return finalAmount;
 
     }
 
@@ -85,4 +110,5 @@ public class OrderService {
         return false;
 
     }
+
 }

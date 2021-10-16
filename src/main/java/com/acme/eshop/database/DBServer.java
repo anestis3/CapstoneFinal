@@ -1,4 +1,4 @@
-package com.acme.eshop;
+package com.acme.eshop.database;
 
 import org.h2.tools.Server;
 import org.slf4j.Logger;

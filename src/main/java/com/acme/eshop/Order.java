@@ -1,5 +1,7 @@
 package com.acme.eshop;
 
+import com.acme.eshop.database.DBConnection;
+import com.acme.eshop.database.DBServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,13 +40,13 @@ public class Order {
         try {
             stm = DBConnection.getDBConnection().createStatement();
             resultSet = stm.executeUpdate(DBConnection.getSQL("insert.order.001"));
-            logger.debug("Result for insert order "+ resultSet);
+        //  logger.debug("Result for insert order "+ resultSet);
             resultSet = stm.executeUpdate(DBConnection.getSQL("update.order.001"));
-            logger.debug("Result for 1st update order "+ resultSet);
+        //  logger.debug("Result for 1st update order "+ resultSet);
             resultSet = stm.executeUpdate(DBConnection.getSQL("insert.order.002"));
-            logger.debug("Result for insert order "+ resultSet);
+        //  logger.debug("Result for insert order "+ resultSet);
             resultSet = stm.executeUpdate(DBConnection.getSQL("update.order.002"));
-            logger.debug("Result for 2nd update order "+ resultSet);
+        //  logger.debug("Result for 2nd update order "+ resultSet);
         } catch (SQLException throwables) {
             logger.error("unable to load Orders",throwables);
         }
@@ -58,12 +60,9 @@ public class Order {
         try(PreparedStatement ps = DBConnection.getDBConnection().prepareStatement(sqlSelect)){
                 ResultSet rs = ps.executeQuery();
                 if(rs.next()){
-                    logger.debug("max order_id is: "+String.valueOf(rs.getInt(1)));
+                    logger.debug("max order_id is: "+ rs.getInt(1));
                     newOrder = rs.getInt(1);
                     newOrder = newOrder+1;
-                }
-                else {
-                    newOrder = 0;
                 }
             } catch (SQLException ex) {
                 logger.error("unable to select max_id", ex);
@@ -86,7 +85,7 @@ public class Order {
             if (affectedRows == 0) {
                 throw new SQLException("Insert orders failed, no rows affected.");
             }
-            logger.info("affected rows " + String.valueOf(affectedRows));
+            logger.info("affected rows " + affectedRows);
 
             return newOrder;
         } catch (SQLException throwables) {
@@ -116,7 +115,7 @@ public class Order {
     }
 
     public void selectOrder(){
-        Statement statement = null;
+        Statement statement;
         try {
             statement = DBConnection.getDBConnection().createStatement();
             ResultSet resultSet = statement.executeQuery(DBConnection.getSQL("select.order.001"));
@@ -144,9 +143,10 @@ public class Order {
 
             while (resultSet.next()) {
                     //@formatter:off
-                logger.info("id:{}, customer:{}, status:{}, amount:{}.",
+                logger.info("orderid:{}, customer:{}, status:{}, method:{}, amount:{}.",
                         resultSet.getInt("ORDER_ID"),
                         resultSet.getInt("CUSTOMER_ID"),
+                        resultSet.getString("ORDER_STATUS"),
                         resultSet.getString("ORDER_METHOD"),
                         resultSet.getDouble("TOTAL_AMOUNT"));
                     //@formatter:on
@@ -157,6 +157,7 @@ public class Order {
         }
 
     }
+
 
 
 }

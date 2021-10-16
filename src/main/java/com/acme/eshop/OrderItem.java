@@ -1,5 +1,7 @@
 package com.acme.eshop;
 
+import com.acme.eshop.database.DBConnection;
+import com.acme.eshop.database.DBServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,15 +34,15 @@ public class OrderItem {
         try {
             stm = DBConnection.getDBConnection().createStatement();
             resultSet = stm.executeUpdate(DBConnection.getSQL("insert.orderitem.001"));
-            logger.debug("Result for 1st insert order item"+ resultSet);
+      //    logger.debug("Result for 1st insert order item"+ resultSet);
             resultSet = stm.executeUpdate(DBConnection.getSQL("update.orderitem.001"));
-            logger.debug("Result for 1st update order item"+ resultSet);
+      //    logger.debug("Result for 1st update order item"+ resultSet);
             resultSet = stm.executeUpdate(DBConnection.getSQL("insert.orderitem.002"));
-            logger.debug("Result for 2st insert order item"+resultSet);
+      //    logger.debug("Result for 2st insert order item"+resultSet);
             resultSet = stm.executeUpdate(DBConnection.getSQL("update.orderitem.002"));
-            logger.debug("Result for 2nd update order item"+ resultSet);
-        } catch (SQLException throwables) {
-            logger.error("unable to load table order_item",throwables);
+      //    logger.debug("Result for 2nd update order item"+ resultSet);
+        } catch (SQLException ex) {
+            logger.error("unable to load table order_item",ex);
         }
     }
 
@@ -50,7 +52,7 @@ public class OrderItem {
                 "INSERT INTO ORDER_ITEM(ORDER_ID, PRODUCT_ID, PRODUCT_QNTY) "
                         + "VALUES(?,?, ?)";
         try (PreparedStatement statement = DBConnection.getDBConnection().prepareStatement(sql)){
-            statement.setLong(1, order_id);
+            statement.setLong(1,order_id);
             statement.setLong(2,pro_id);
             statement.setLong(3,qnty);
 
@@ -65,7 +67,7 @@ public class OrderItem {
 
     }
     public void selectOrderitem(){
-        Statement statement = null;
+        Statement statement;
         try {
             statement = DBConnection.getDBConnection().createStatement();
             ResultSet resultSet = statement.executeQuery(DBConnection.getSQL("select.orderitem.001"));
@@ -76,6 +78,27 @@ public class OrderItem {
                                }
         } catch (SQLException ex) {
             logger.error("unable to perform selection to orders",ex);
+        }
+
+    }
+
+    public void selectSingleOrderItemWithId(Integer newOrderId) {
+
+        String sql = "SELECT * FROM ORDER_ITEM WHERE ORDER_ID = ? " ;
+
+        try(PreparedStatement statement = DBConnection.getDBConnection().prepareStatement(sql)){
+            statement.setInt(1,newOrderId);
+
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                logger.info("orderid:{}, productid:{}, productqnty:{}.",
+                resultSet.getInt("ORDER_ID"),
+                resultSet.getInt("PRODUCT_ID"),
+                resultSet.getString("PRODUCT_QNTY"));
+                            }
+        } catch (SQLException throwable) {
+            logger.error("Error occurred while retrieving data from Orders", throwable);
         }
 
     }
