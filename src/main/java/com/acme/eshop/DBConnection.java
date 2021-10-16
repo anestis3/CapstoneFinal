@@ -47,9 +47,9 @@ public class DBConnection {
         Connection connection = null;
         try {
             connection = DriverManager.getConnection(DB_URL, DB_USERNAME, DB_PASSWORD);
-            logger.info("A connection has been established ");
+      //    logger.info("A DB connection has been established ");
         } catch (SQLException throwables) {
-            logger.error("Unable to set up a connection"+throwables);
+            logger.error("Unable to set up a DB connection"+throwables);
         }
         return connection;
 

@@ -13,8 +13,8 @@
 
         <!-- Rolling Random Access File Appender with a default buffer of 256 * 1024 bytes -->
         <RollingRandomAccessFile name="RollingRandomAccessFileAppender"
-                                 fileName="logs/FinalExam.log"
-                                 filePattern="logs/FinalExam-%d{yyyy-MM-dd}.zip">
+                                 fileName="logs/CapstoneProject.log"
+                                 filePattern="logs/CapstoneProject-%d{yyyy-MM-dd}.zip">
             <PatternLayout>
                 <Pattern>${LOG_PATTERN}</Pattern>
             </PatternLayout>

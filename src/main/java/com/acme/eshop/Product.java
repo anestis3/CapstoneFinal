@@ -50,7 +50,7 @@ public class Product {
 
         for (int i = 1; i <= howMany; i++) {
             try {
-                prepStat.setInt(1, ThreadLocalRandom.current().nextInt(4505, 6170));
+                prepStat.setInt(1, ThreadLocalRandom.current().nextInt(3505, 7170));
                 prepStat.setInt(2, ThreadLocalRandom.current().nextInt(1, 30));
                 if (i < 4) {
                     prepStat.setString(3, "COFFEE");
@@ -93,25 +93,6 @@ public class Product {
 
     }
 
-    public Integer selectProductQnty(Integer pro_id) {
-
-        String sql = "SELECT PRODUCT_AVAIL FROM PRODUCT WHERE PRODUCT_ID = ?";
-
-        try (PreparedStatement statement = DBConnection.getDBConnection().prepareStatement(sql)){
-            statement.setInt(1,pro_id);
-            ResultSet resultSet = statement.executeQuery();
-            if(resultSet.next()){
-                logger.debug(String.valueOf(resultSet.getInt("PRODUCT_AVAIL")));
-                return resultSet.getInt( "PRODUCT_AVAIL");
-            }
-            else {
-                return 2;  //0y
-            }
-        } catch (SQLException ex) {
-            logger.error("unable to perform selection to product",ex);
-        }
-        return 0;
-    }
     public Double selectProductPrice(Integer pro_id) {
 
         Double price = 0.00;
@@ -121,15 +102,53 @@ public class Product {
             statement.setInt(1,pro_id);
             ResultSet resultSet = statement.executeQuery();
             if(resultSet.next()){
-                logger.debug(String.valueOf(resultSet.getInt("PRICE")));
-                return resultSet.getDouble( "PRICE");
+                logger.info("product price is " + String.valueOf(resultSet.getInt("PRODUCT_PRICE")));
+                return resultSet.getDouble( "PRODUCT_PRICE");
             }
             else {
                 return price;
             }
         } catch (SQLException ex) {
-            logger.error("unable to perform selection to product",ex);
+            logger.error("unable to perform selection to product price",ex);
         }
         return price;
     }
+
+    public String selectProductCategory(Integer product_id) {
+
+        String Name = "unknown";
+        String sql = "SELECT PRODUCT_CATEGORY FROM PRODUCT WHERE PRODUCT_ID = ? " ;
+
+        try(PreparedStatement statement = DBConnection.getDBConnection().prepareStatement(sql)){
+            statement.setInt(1,product_id);
+
+            ResultSet resultSet = statement.executeQuery();
+            if(resultSet.next()){
+                Name = resultSet.getString("PRODUCT_CATEGORY");}
+
+            return Name;
+        } catch (SQLException ex) {
+            logger.error("Error occurred while retrieving category from PRODUCT", ex);
+        }
+        return "unknown";
+    }
+
+    public Integer selectProductAvailability(Integer product_id) {
+
+        Integer Avail = 0;
+        String sql = "SELECT PRODUCT_AVAIL FROM PRODUCT WHERE PRODUCT_ID = ? " ;
+
+        try(PreparedStatement statement = DBConnection.getDBConnection().prepareStatement(sql)){
+            statement.setInt(1,product_id);
+            ResultSet resultSet = statement.executeQuery();
+            if(resultSet.next()){
+                Avail = resultSet.getInt("PRODUCT_AVAIL");}
+
+            return Avail;
+        } catch (SQLException ex) {
+            logger.error("Error occurred while retrieving availability from PRODUCT", ex);
+        }
+        return 0;
+    }
+
 }

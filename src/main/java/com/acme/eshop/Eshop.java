@@ -18,9 +18,18 @@ public class Eshop {
     public static Order order = new Order();
     public static OrderItem orderItem = new OrderItem();
     public static OrderService orderService = new OrderService();
+    public static CustomerService customerService = new CustomerService();
     public static ReportService reportService = new ReportService();
 
     private static final Logger logger = LoggerFactory.getLogger(Eshop.class);
+    private static String methodos;
+    private static String custno;
+    private static String prodno;
+    private static String quantno;
+    private static String report;
+    private static int custnoInt;
+    private static int prodnoInt;
+    private static int quantnoInt;
 
     public static void main(String[] args) {
 
@@ -29,34 +38,20 @@ public class Eshop {
         dbServer.startServer();
 
         createTables();
+        getInputdata();
 
-        Integer newOrderId = orderService.placeOrder(1200, 2, 1008, "CASH");
+        Integer newOrderId = orderService.makeOrder(prodnoInt, quantnoInt, custnoInt, methodos);
         if (newOrderId>0){
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
-                System.out.println("Please press 'Y' to complete your purchase or 'N' to cancel it");
-                String answer = br.readLine();
-                System.out.println(answer);
-
-                if (answer.equals("y") | answer.equals("Y")) {
                     if(orderService.executeOrder(newOrderId)){
                         order.selectSingleOrderWithId(newOrderId);
-                        System.out.println("Your order has been completed");
-                        DBConnection.getDBConnection().commit();
+                        orderItem.selectSingleOrderItemWithId(newOrderId);
+                        logger.info("Your order no " + newOrderId + " has been completed");
+            //            DBConnection.getDBConnection().commit();
                     }
                     else {
                         System.out.println("An error has occurred - order not completed");
                     }
                 }
-                else if (answer.equals("n") | answer.equals("N")) {
-                    System.out.println("We hope to serve you another time");
-                }
-                else {
-                    System.out.println("You have entered an invalid value");
-                }
-            } catch (IOException | SQLException ioException) {
-                ioException.printStackTrace();
-            }
-        }
 
         GetReports();
 
@@ -64,6 +59,80 @@ public class Eshop {
         dbServer.stopServer();
 
     }
+
+    private static void getInputdata() {
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+        try {
+            logger.info("Please insert your customer_id ( choose a number between 301 and 310)");
+            custno = br.readLine();
+            System.out.println(custno);
+
+            if (custno.equals("301") | custno.equals("302") | custno.equals("303") | custno.equals("304") |
+                custno.equals("305") | custno.equals("306") | custno.equals("307") | custno.equals("308") |
+                custno.equals("309") | custno.equals("310") )
+            {
+                custnoInt =Integer.parseInt(custno);
+                String currentCustomer = customerService.selectCustomerName(custnoInt);
+                logger.info("Hello " + currentCustomer);
+                Integer orderId = order.selectSingleOrder(custnoInt);
+                if (orderId > 0) {
+                    logger.info("Sorry but you have a pending order ");
+                    exit(-1);
+                }
+            }
+            else {
+                System.out.println("invalid customer");
+                exit(-1);
+            }
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+
+        try {
+            logger.info("Please choose the desired product id (choose from the above list)");
+            prodno = br.readLine();
+            prodnoInt =Integer.parseInt(prodno);
+            String currentProd = product.selectProductCategory(prodnoInt);
+            logger.info("You have chosen product id " + prodno + " from category " + currentProd);
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+
+        try {
+            Integer currentAvail = product.selectProductAvailability(prodnoInt);
+            logger.info("Please choose the desired quantity. Currently there are "+currentAvail + " available items");
+            quantno = br.readLine();
+            quantnoInt =Integer.parseInt(quantno);
+            while (quantnoInt > currentAvail) {
+                logger.info("Please choose " + currentAvail + " or less items");
+                quantno = br.readLine();
+                quantnoInt = Integer.parseInt(quantno);
+            }
+            System.out.println("You have selected " + quantno + " items");
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+
+        try  {
+            logger.info("Please type 'cash' or 'card' depending on your preferred payment method");
+            methodos = br.readLine();
+            System.out.println(methodos);
+
+            if (methodos.equals("card") | methodos.equals("cash")) {
+                    logger.info("You have chosen "+ methodos + " payment method");
+                }
+                else {
+                    logger.info("invalid payment method");
+                    exit(-1);
+                }
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+
+    }
+
 
     private static void createTables() {
 
@@ -87,6 +156,7 @@ public class Eshop {
 
         logger.info("Order Table loading");
         order.insertOrder();
+
         order.selectOrder();
         orderItem.selectOrderitem();
 
@@ -94,11 +164,25 @@ public class Eshop {
 
     private static void GetReports() {
 
-        logger.info("Reporting...........");
-        reportService.getReportPerCust();
-        reportService.getReportAvCost();
-        reportService.getReportAvPerCust();
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
+        try  {
+            logger.info("Please type 'r' to proceed with the reporting or anything else to exit");
+            report = br.readLine();
+
+            if (report.equals("r") ) {
+                br.close();
+                logger.info("Processing reporting");
+                reportService.getReportPerCust();
+                reportService.getReportAvCost();
+                reportService.getReportAvPerCust();
+            }
+            else {
+                exit(-1);
+            }
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
 
     }
 

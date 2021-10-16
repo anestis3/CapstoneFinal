@@ -38,13 +38,13 @@ public class Order {
         try {
             stm = DBConnection.getDBConnection().createStatement();
             resultSet = stm.executeUpdate(DBConnection.getSQL("insert.order.001"));
-            logger.debug("Result for insert order "+ resultSet);
+        //  logger.debug("Result for insert order "+ resultSet);
             resultSet = stm.executeUpdate(DBConnection.getSQL("update.order.001"));
-            logger.debug("Result for 1st update order "+ resultSet);
+        //  logger.debug("Result for 1st update order "+ resultSet);
             resultSet = stm.executeUpdate(DBConnection.getSQL("insert.order.002"));
-            logger.debug("Result for insert order "+ resultSet);
+        //  logger.debug("Result for insert order "+ resultSet);
             resultSet = stm.executeUpdate(DBConnection.getSQL("update.order.002"));
-            logger.debug("Result for 2nd update order "+ resultSet);
+        //  logger.debug("Result for 2nd update order "+ resultSet);
         } catch (SQLException throwables) {
             logger.error("unable to load Orders",throwables);
         }
@@ -144,9 +144,10 @@ public class Order {
 
             while (resultSet.next()) {
                     //@formatter:off
-                logger.info("id:{}, customer:{}, status:{}, amount:{}.",
+                logger.info("id:{}, customer:{}, status:{}, method:{}, amount:{}.",
                         resultSet.getInt("ORDER_ID"),
                         resultSet.getInt("CUSTOMER_ID"),
+                        resultSet.getString("ORDER_STATUS"),
                         resultSet.getString("ORDER_METHOD"),
                         resultSet.getDouble("TOTAL_AMOUNT"));
                     //@formatter:on
@@ -157,6 +158,7 @@ public class Order {
         }
 
     }
+
 
 
 }

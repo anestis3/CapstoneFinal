@@ -91,23 +91,4 @@ public class Customer {
         }
     }
 
-    public String selectSingeCustomer(Integer cust_id) {
-
-        String category = null;
-        String sql = "SELECT CATEGORY FROM CUSTOMER WHERE CUSTOMER_ID = ? " ;
-
-        try(PreparedStatement statement = DBConnection.getDBConnection().prepareStatement(sql)){
-            statement.setInt(1,cust_id);
-
-            ResultSet resultSet = statement.executeQuery();
-            if(resultSet.next()){
-                category = resultSet.getString("CATEGORY");}
-            return category;
-        } catch (SQLException throwable) {
-            logger.error("Error occurred while retrieving data from customer", throwable);
-        }
-        return category;
-
-    }
-
 }
