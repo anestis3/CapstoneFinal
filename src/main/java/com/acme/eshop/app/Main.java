@@ -1,7 +1,7 @@
 package com.acme.eshop.app;
 
-import com.acme.eshop.*;
 import com.acme.eshop.database.DBServer;
+import com.acme.eshop.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

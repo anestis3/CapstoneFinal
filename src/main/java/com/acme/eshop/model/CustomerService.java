@@ -1,4 +1,4 @@
-package com.acme.eshop;
+package com.acme.eshop.model;
 
 import com.acme.eshop.app.Main;
 import com.acme.eshop.database.DBConnection;
