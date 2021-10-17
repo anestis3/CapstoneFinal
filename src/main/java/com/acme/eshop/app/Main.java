@@ -174,8 +174,8 @@ public class Main {
                 br.close();
                 logger.info("Processing reporting");
                 reportService.getReportPerCust();
-                reportService.getReportAvCost();
-                reportService.getReportAvPerCust();
+                reportService.getReportAverageCost();
+                reportService.getReportAveragePerCust();
             }
             else {
                 exit(-1);

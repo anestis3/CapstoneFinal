@@ -22,14 +22,14 @@ public class ReportService {
 
         try (Statement statement = DBConnection.getDBConnection().createStatement();
              ResultSet resultSet = statement.executeQuery(DBConnection.getSQL("select.report.001"))) {
-            logger.info("The list of the total number and cost of purchases per customer");
+            logger.info("Report of the total number and cost of purchases per customer");
             while (resultSet.next()) {
 
                 //@formatter:off
-                logger.info("total number:{}, total amount:{}, customer:{}.",
-                        resultSet.getLong("TOTAL"),
-                        resultSet.getString("TSUM"),
-                        resultSet.getString("CUSTOMER_ID"));
+                logger.info("customer:{} has made {} order(s) of {} total amount.",
+                        resultSet.getString("CUSTOMER_ID"),
+                        resultSet.getLong("TOTAL_NUMBER"),
+                        resultSet.getString("SUM_AMOUNT"));
                 //@formatter:on
             }
         } catch (SQLException throwables) {
@@ -37,15 +37,16 @@ public class ReportService {
         }
     }
 
-    public void getReportAvCost() {
+    public void getReportAverageCost() {
         try (Statement statement = DBConnection.getDBConnection().createStatement();
              ResultSet resultSet = statement.executeQuery(DBConnection.getSQL("select.report.002"))) {
-            logger.info("The average order cost");
+            logger.info("Report with the average order cost");
             while (resultSet.next()) {
 
                 //@formatter:off
-                logger.info("total average cost:{}.",
-                        resultSet.getDouble(1));
+                logger.info("total average cost is {} (for {} total orders)",
+                        resultSet.getDouble(1),
+                        resultSet.getLong("TOTAL_NUMBER"));
 
                 //@formatter:on
             }
@@ -54,14 +55,14 @@ public class ReportService {
         }
     }
 
-    public void getReportAvPerCust() {
+    public void getReportAveragePerCust() {
         try (Statement statement = DBConnection.getDBConnection().createStatement();
              ResultSet resultSet = statement.executeQuery(DBConnection.getSQL("select.report.003"))) {
-            logger.info("The average order cost per customer");
+            logger.info("Report with the average order cost per customer");
             while (resultSet.next()) {
 
                 //@formatter:off
-                logger.info("total average cost per customer:{}, customer:{}.",
+                logger.info("average cost for customer {} is:{}.",
                         resultSet.getDouble(1),
                         resultSet.getInt(2));
 
